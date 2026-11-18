@@ -10,6 +10,17 @@ Originally built for the VR game *誰去取火 Who Will Fetch the Fire*.
 - **Fixed mode**: a static third-person camera you can place anywhere by standing there and pressing a key.
 - Zero cost when switched off. The player's headset view is unchanged.
 
+### Why not Unity Recorder?
+
+Unity's built-in [Recorder](https://docs.unity3d.com/Packages/com.unity.recorder@latest) works, but it isn't a great fit for VR:
+
+- **Editor only.** It can't record a built game, and OBS can.
+- **It runs inside the game.** Recorder encodes the video in Unity's own process, which can drop frames. In a headset, dropped frames mean stutter and motion sickness for the player. OBS records in a separate program using the graphics card's video encoder (e.g. NVENC), so the game barely notices.
+- **Shaky footage by default.** Recorder's usual source is the Game view, which mirrors the raw head movement. This project adds a smoothed, level camera made for viewers.
+- **OBS does more.** You get your microphone, overlays, scene switching and live streaming in the same place.
+
+For a quick capture in the Editor, Recorder is still fine.
+
 ---
 
 ## Requirements
