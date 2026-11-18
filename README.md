@@ -49,7 +49,7 @@ Add this to your project's `Packages/manifest.json`:
 ### Import the spectator
 Pick one:
 
-- **Unity package (easiest):** download `VRSpectatorSpout.unitypackage` from [Releases](../../releases) → in Unity, **Assets → Import Package → Custom Package…**
+- **Unity package (easiest):** download [`VRSpectatorSpout.unitypackage`](VRSpectatorSpout.unitypackage) (click it, then the **Download raw file** button) → in Unity, **Assets → Import Package → Custom Package…**
 - **Copy the folder:** copy `Assets/_Recording` **and** `Assets/_Recording.meta` into your project's `Assets` folder. Keep the `.meta` files, or the prefab loses its links.
 
 ### Add it to your scene
