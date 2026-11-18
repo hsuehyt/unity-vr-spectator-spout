@@ -8,6 +8,7 @@ Originally built for the VR game *誰去取火 Who Will Fetch the Fire*.
 
 - **Follow mode**: first-person view that pans as you pan, but with head shake and tilt smoothed out.
 - **Fixed mode**: a static third-person camera you can place anywhere by standing there and pressing a key.
+- **Frame guide**: corner brackets and a crosshair in the headset show exactly what's in the shot. Only you see them; they never appear in the recording.
 - Zero cost when switched off. The player's headset view is unchanged.
 
 ### Why not Unity Recorder?
@@ -97,8 +98,19 @@ That's it. With **Target** left empty it follows the MainCamera. If your headset
 |---|---|
 | **F9** | Switch Follow ↔ Fixed |
 | **F10** | Drop the fixed camera where your head is right now (and switch to Fixed) |
+| **F11** | Frame guide: Brackets + Crosshair → Brackets only → Off |
 
 Tip for third-person shots: stand where you want the camera, press **F10**, then walk into frame.
+
+### Frame guide (in the headset only)
+
+In Follow mode you'll see four thin corner brackets about 2 m in front of you. They mark the edges of the recorded shot. A small crosshair with an open centre marks the middle.
+
+- The guide follows the spectator camera's *smoothed* movement, not your head directly. When you turn quickly, it trails slightly behind; that's exactly what the video shows at that moment.
+- It's drawn on top of everything, so walls never hide it.
+- It only shows for the headset camera. The recording, the Scene view and any other cameras (for example projection cameras) never see it. It does appear in the Unity Game view, because that mirrors the headset.
+- It hides in Fixed mode, where a frame in front of your face wouldn't match the camera's position.
+- On your monitor the Game view is low resolution, so the thin crosshair may flicker there. In the headset it's 3–4 pixels wide.
 
 ---
 
@@ -118,7 +130,24 @@ Select the spectator in the Hierarchy:
 | Fixed Position / Euler | | Where the fixed camera sits (F10 sets these for you). |
 | Look At Player | off | Fixed camera slowly turns to keep you in frame. |
 
-**Camera**: change **Field of View** (default 70) for a wider or tighter shot.
+**Frame Guide (headset only)** (child object)
+
+| Setting | Default | What it does |
+|---|---|---|
+| Style | Brackets And Crosshair | Starting style. F11 cycles while playing. |
+| Color | white, 60% | Line colour and opacity. |
+| Distance | 2 m | How far ahead the guide floats. Doesn't change how big it looks. |
+| Line Width Degrees | 0.15 | Line thickness. Try 0.2–0.25 if it's hard to see. |
+| Bracket Length | 0.2 | Length of each corner arm (fraction of half the frame height). |
+
+**Camera**: **Field of View** (default 55) sets how wide the shot is. Unity's FOV is the *vertical* angle, so at 16:9 the horizontal coverage is much wider:
+
+| Field of View | Horizontal coverage | Frame guide in the headset |
+|---|---|---|
+| 70 | ~102° | Side brackets at or past the edge of your view |
+| 60 | ~91° | Side brackets near the edges |
+| **55** (default) | ~86° | Clearly visible, comfortable |
+| 50 | ~79° | Clearly visible; tighter, more cinematic shot |
 
 **SpectatorRT_1920x1080** (the RenderTexture):
 - **Size**: change resolution, e.g. 2560×1440 or 3840×2160. Keep it 16:9, and match OBS's canvas.
@@ -128,7 +157,11 @@ Select the spectator in the Hierarchy:
 
 ## Performance
 
-The spectator renders the scene one extra time per frame. When you're not recording, untick the spectator GameObject. It then costs nothing.
+The spectator renders the scene one extra time per frame. When you're not recording, untick the spectator GameObject. It then costs nothing: no extra rendering, no Spout feed, no hotkeys, no guide. The frame guide itself costs almost nothing.
+
+### At an exhibition
+
+Untick the spectator GameObject so visitors don't see the frame guide and the headset keeps its full frame rate. If you want to film visitors, keep it on but set the guide's **Style** to **Off**, and consider a Fixed third-person shot (F10). If you exhibit a built game and never record from the build, you can also set the object's **Tag** to **EditorOnly** so Unity leaves it out of builds.
 
 ## Troubleshooting
 
@@ -140,6 +173,9 @@ The spectator renders the scene one extra time per frame. When you're not record
 | Nothing received at all | Check **Project Settings → Player → Graphics APIs**: Direct3D11 must be first. |
 | Camera doesn't move | Headset camera isn't tagged MainCamera. Drag it into **Target**. |
 | Compile error about `UniversalAdditionalCameraData` | Project isn't using URP. |
+| Frame guide not visible | Must be in Follow mode (F9), Style not Off (F11), and the headset camera must be the spectator's Target (MainCamera). |
+| Frame guide too thin / hard to see | Raise **Line Width Degrees** to 0.2–0.25, or raise the Color alpha. |
+| Side brackets cut off at the edge of the headset view | Lower the spectator **Field of View** (see the table above). |
 
 ## Removing it
 
@@ -149,7 +185,11 @@ Delete the `_Recording` folder and the spectator object from your scene.
 
 ```
 Assets/_Recording/
-├─ FetchFire Spectator.prefab           Camera + SpectatorCamera + SpoutSender
+├─ FetchFire Spectator.prefab           Camera + SpectatorCamera + SpoutSender,
+│                                       with a "Frame Guide (headset only)" child
 ├─ SpectatorCamera.cs                   follow / fixed logic, F9/F10 keys
+├─ SpectatorFrameGuide.cs               corner brackets + crosshair, F11 key
+├─ SpectatorFrameGuide.shader           always-on-top unlit lines (VR-ready)
+├─ SpectatorFrameGuide.mat              material for the guide
 └─ SpectatorRT_1920x1080.renderTexture  the video feed sent to OBS
 ```
